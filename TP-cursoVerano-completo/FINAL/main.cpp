@@ -1,17 +1,16 @@
 /*
-	Se tiene un archivo binario de datos "Datos.dat",desordenado, se pide realizar 
-	un programa que genere una estructura de incdices "Indice.idx"( este mismo tendra 
-	tantas componentes como tenga el archivo Datos.dat), para que lo ordene en forma asendente. 
+	Se tiene un archivo binario de datos "Datos.dat",desordenado, se pide realizar
+	un programa que genere una estructura de incdices "Indice.idx"( este mismo tendra
+	tantas componentes como tenga el archivo Datos.dat), para que lo ordene en forma asendente.
+	
 	El archivo Datos.dat tendra los siguientes campos: int cmpClv, int cmp1, float cmp2, char cmp3[21].
-
-	Luego se pide que se obtenga un listado ordenado desendentemente segun 
-	la estructura de indice y que emita los datos contenidos en el archivo 
-	binario "Datos.dat" por pantalla y tambien los guarde en un archivo "Datos.txt".
-
-	Por ultimo crear un archivo binario "Menores .dat", que a partir del archivo "Datos.dat" 
-	desordenado pero ordenado logicamente por la estructura de indices, se pida ingresar un numero 
-	real y que compara el cmp2 con el valor ingresado. En caso de ser menor al numero ingresado, 
-	entonces se genera una nueva componente en el archivo "Menores.dat", pero ordenado por el valor 
+	Luego se pide que se obtenga un listado ordenado desendentemente segun
+	la estructura de indice y que se muestre en un archivo "Datos.txt".
+	
+	Por ultimo crear un archivo binario "Menores .dat", que a partir del archivo "Datos.dat"
+	desordenado pero ordenado logicamente por la estructura de indices, se pida ingresar un numero
+	real y que compara el cmp2 con el valor ingresado. En caso de ser menor al numero ingresado,
+	entonces se genera una nueva componente en el archivo "Menores.dat", pero ordenado por el valor
 	del cmpClv en forma asendente. Ademas guardarlo en un archivo "Menores.txt".
 */
 #include <iostream>
