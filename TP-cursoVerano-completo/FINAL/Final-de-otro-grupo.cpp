@@ -72,6 +72,14 @@ int main()
 	cout<<"Introdusca una fecha en formato AAAAMMDD: ";
 	cin>>fecha;
 	//--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
+	//vVriables aux para eliminar una venta
+	int contador = 0;
+	int numEliminar;
+	int posicionAux;
+	//--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
+	//Variables para minimo maximo promedio y suam del dia 
+	float suma,promedio,mayor,menor;
+	//--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 	//Calculo los valores del dia y mes, y compruebo si fueron bien ingresados.
 	mes1 = (fecha / 1000) - (fecha/10000)*10;
 	mes2 = (fecha / 100) - (fecha/1000)*10;
@@ -141,24 +149,45 @@ int main()
 				fclose(archivo);
 				break;
 			//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
-				
+			//no anda del todo
 			case 2:
+				
+				posicionAux = 0;
 				archivo = fopen(dondeGuardarDatos_dat,"rb+");
 				
 				fseek(archivo,0,SEEK_END);
 				cantRegistros = ftell(archivo)/sizeof(ventaR);
 				
-				fread(&vectVenta,sizeof(ventaR),cantRegistros,archivo);
+				fseek(archivo,0,SEEK_SET);
+				fread(&vectVenta,sizeof(vectVenta),cantRegistros,archivo);
+				
+				cout<<"Ingrese el numero de id el cual desea eliminar: ";
+				cin>>numEliminar;
 				
 				for(int i=0;i<cantRegistros;i++){
-					cout<<vectVenta[i].id<<endl;
-					cout<<vectVenta[i].cantVendida<<endl;
-					cout<<vectVenta[i].categoria<<endl;
-					cout<<vectVenta[i].monto<<endl;
-					cout<<vectVenta[i].producto<<endl;
-					cout<<"-----------------------------"<<endl;
+					if(vectVenta[i].id == numEliminar){
+						vectVenta[i] = vectVenta[i+1];
+						posicionAux = i+1;
+					}
+				}
+				for(int j=posicionAux;j<cantRegistros-1;j++){
+					vectVenta[j] = vectVenta[j+1];
 				}
 				
+				/*for(int h=0;h<cantRegistros;h++){
+					cout<<vectVenta[h].id<<endl;
+					cout<<vectVenta[h].cantVendida<<endl;
+					cout<<vectVenta[h].categoria<<endl;
+					cout<<vectVenta[h].monto<<endl;
+					cout<<vectVenta[h].producto<<endl;
+					cout<<"-----------------------------"<<endl;
+				}*/
+				
+				fseek(archivo,0,SEEK_SET);
+				fwrite(&vectVenta,sizeof(vectVenta),cantRegistros,archivo);
+				
+				fclose(archivo);
+							
 				break;
 			//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 			//Permite buscar por id un registro del archivo
@@ -184,8 +213,37 @@ int main()
 				fclose(archivo);
 				break;
 			//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
-			
+			//No anda del todo
 			case 4:
+				
+				
+				archivo = fopen(dondeGuardarDatos_dat,"rb+");
+				
+				fseek(archivo,0,SEEK_END);
+				cantRegistros = ftell(archivo)/sizeof(ventaR);
+				
+				fseek(archivo,0,SEEK_SET);
+				fread(&vectVenta,sizeof(vectVenta),cantRegistros,archivo);
+				
+				menor = vectVenta[0].monto;
+				mayor = vectVenta[0].monto;
+				
+				for(int i=0;i<cantRegistros;i++){
+					if(vectVenta[i].monto > mayor){
+						mayor = vectVenta[i].monto;
+					}
+					if(vectVenta[i].monto < menor){
+						menor = vectVenta[i].monto;
+					}
+					suma += vectVenta[i].monto * vectVenta[i].cantVendida;
+				}
+				promedio = suma / cantRegistros;
+				
+				cout<<"El mayor monto del dia es: "<<mayor<<endl;
+				cout<<"El menor monto del dia es: "<<menor<<endl;
+				cout<<"La suma de lo vendido en el dia es: "<<suma<<endl;
+				cout<<"El promedio es: "<<promedio<<endl;
+				
 				break;
 			//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 			case 5:
