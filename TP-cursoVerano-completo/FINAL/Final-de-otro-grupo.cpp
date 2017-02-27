@@ -31,6 +31,7 @@ struct venta{
 	int cantVendida;
 };
 venta ventaR;
+venta vectVenta[100];
 
 void crearCarpetas();
 void obtenerDatos(venta &);
@@ -57,8 +58,7 @@ int main()
 	char catIngresar[31],prodIngresar[31];
 	//--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 	//Busueda
-	int posicion = -1;
-	int	principio = 0;
+	int posicion = 0;
 	int numBuscar;
 	//--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 	//crea las carpetas
@@ -143,52 +143,44 @@ int main()
 			//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 				
 			case 2:
+				archivo = fopen(dondeGuardarDatos_dat,"rb+");
+				
+				fseek(archivo,0,SEEK_END);
+				cantRegistros = ftell(archivo)/sizeof(ventaR);
+				
+				fread(&vectVenta,sizeof(ventaR),cantRegistros,archivo);
+				
+				for(int i=0;i<cantRegistros;i++){
+					cout<<vectVenta[i].id<<endl;
+					cout<<vectVenta[i].cantVendida<<endl;
+					cout<<vectVenta[i].categoria<<endl;
+					cout<<vectVenta[i].monto<<endl;
+					cout<<vectVenta[i].producto<<endl;
+					cout<<"-----------------------------"<<endl;
+				}
+				
 				break;
 			//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 			//Permite buscar por id un registro del archivo
-			//no anda bien, revisar que falla
 			case 3:
 				cantRegistros = 0;
+				posicion = 0;
 				
 				cout<<"Ingrese numero de id que busca: ";
 				cin>> numBuscar;
-				
 				archivo = fopen(dondeGuardarDatos_dat,"rb");
-					
-				fseek(archivo,0,SEEK_END);
-				cantRegistros = ftell(archivo) / sizeof(archivo);	
 				
-				fseek(archivo,0,SEEK_SET);
-				
-				while((posicion == -1) && principio <= cantRegistros){
-		
-					int mitad = (principio + cantRegistros)/2;
-					
-					fseek(archivo,mitad*sizeof(ventaR),SEEK_SET);
-					fread(&ventaR,sizeof(ventaR),1,archivo);
-					
+				cout<< left <<setw(10) << "Id" << " | " << setw(30) << "Producto" << " | " << setw(30) << "Categoria" << " | " << setw(10) << "Monto" << " | " <<setw(25) << "Cantidad Vendidos"<<endl;
+				cout<<"--------------------------------------------------------------------------------------------------------------"<<endl;
+				while(fread(&ventaR,sizeof(ventaR),1,archivo)){
 					if(ventaR.id == numBuscar){
-						posicion = mitad;
-					}
-					else{
-						if(numBuscar > ventaR.id){
-							principio = mitad + 1;
-						}
-						else{
-						cantRegistros = mitad - 1;
-						}
+					cout<< setw(10) << ventaR.id << " | " << setw(30) << ventaR.producto << " | " << setw(30) << ventaR.categoria << " | " << setw(10) << ventaR.monto << " | " << setw(25) << ventaR.cantVendida << endl;
+					cout<<"--------------------------------------------------------------------------------------------------------------"<<endl;
+					posicion = ftell(archivo)/sizeof(ventaR);
+					break;
 					}
 				}
-				
-				if(posicion == -1){
-					cout<<"No se pudo encontrar tal id"<<endl;
-				}
-				else{
-					fseek(archivo,posicion*sizeof(ventaR),SEEK_SET);
-					cout<< setw(10) << "Id" << setw(30) << "Producto" << setw(30) << "Categoria" << setw(10) << "Monto" << setw(25) << "Cantidad Vendidos"<<endl<<endl;
-					cout<< setw(9) << ventaR.id << " " << setw(29) << ventaR.producto << " " << setw(29) << ventaR.categoria << " " << setw(9) << ventaR.monto << " " << setw(44) << ventaR.cantVendida << endl;
-				}
-				cout<<endl<<endl;
+				cout<<"Se encuentra en la pocicion "<< posicion <<endl;
 				fclose(archivo);
 				break;
 			//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
@@ -359,10 +351,10 @@ void dondeGuardar(int mes,int dia,char * dondeGuardarDat,char * dondeGuardarTxt)
 void mostrarEnTxt(FILE * archivoDeDia,char * dondeGuardar){
 	archivoDeDia = fopen(dondeGuardar,"rb");
 	cout<< left <<setw(10) << "Id" << " | " << setw(30) << "Producto" << " | " << setw(30) << "Categoria" << " | " << setw(10) << "Monto" << " | " <<setw(25) << "Cantidad Vendidos"<<endl;
-	cout<<"---------------------------------------------------------------------------------------------------------"<<endl;
+	cout<<"--------------------------------------------------------------------------------------------------------------"<<endl;
 	while(fread(&ventaR,sizeof(ventaR),1,archivoDeDia)){
 		cout<< setw(10) << ventaR.id << " | " << setw(30) << ventaR.producto << " | " << setw(30) << ventaR.categoria << " | " << setw(10) << ventaR.monto << " | " << setw(25) << ventaR.cantVendida << endl;
-		cout<<"---------------------------------------------------------------------------------------------------------"<<endl;
+		cout<<"--------------------------------------------------------------------------------------------------------------"<<endl;
 	}
 }
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
@@ -371,4 +363,3 @@ void mostrarEnTxt(FILE * archivoDeDia,char * dondeGuardar){
 //                                                                                                  Now, God only knows																											//
 //																																																								//	
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
-
