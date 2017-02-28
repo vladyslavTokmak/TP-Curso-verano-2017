@@ -1,19 +1,3 @@
-/*
-	Un vendedor desea generar un programa capaz de almacenar las ventas del dia en 
-	archivos cuyo nombre lleva el dia correspondiente dentro de la carpeta del mes correspondiente.
-	El programa solo puede almacenar 100 ventas por dia.
-	Hacer una interfaz tip menu con las siguientes opciones:
-	1-crear venta
-	2-eliminar venta
-	3-buscar venta
-	4-MAXIMO MINIMO PROMEDIO Y TOTAL DE VENTAS DEL DIA
-	5-MAXIMO MINIMO PROMEDIO Y TOTAL DE VENTAS DEL MES	
-	6-cambiar fecha.
-	7-Generar archivo de venta del dia tipo txt
-	0-Finalizar programa
-	nota: se ingresa una fecha antes de empezar tipo AAAAMMDD, todo se hace sobre esa fehca hasta cambiarla
-	La venta contiene: id,categoria, producto, monto, cantidad vendida.
-*/
 #include <iostream>
 #include <dir.h>
 #include<stdlib.h>
@@ -35,7 +19,7 @@ struct nodo{
 	nodo * sgte;
 };
 venta ventaR;
-venta vectVenta[100];
+venta ventaNull;
 
 void crearCarpetas();
 void obtenerDatos(venta &);
@@ -79,9 +63,7 @@ int main()
 	cin>>fecha;
 	//--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 	//vVriables aux para eliminar una venta
-	int contador = 0;
 	int numEliminar;
-	int posicionAux;
 	nodo * pila;
 	nodo * pilaAux;
 	//--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
@@ -106,9 +88,6 @@ int main()
 	//--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 	//Genero una cadena de caracteres la cual indica la direccion en la cual se guardara el archivo
 	dondeGuardar(mesAux,diaAux,dondeGuardarDatos_dat,dondeGuardarDatos_txt);
-	//auxiliar temporal para ver si se crearon bien las cadenas
-	cout<<dondeGuardarDatos_dat<<"/"<<dondeGuardarDatos_txt<<endl;
-	system("pause");
 	//--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 	system("cls");
 	//--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
@@ -157,57 +136,32 @@ int main()
 				fclose(archivo);
 				break;
 			//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
-			//no anda del todo
+			//Elimina un registro del archivo
 			case 2:
 				pila = NULL;
 				pilaAux = pila;
-				posicionAux = 0;
 				archivo = fopen(dondeGuardarDatos_dat,"rb+");
-				auxFile = fopen(strcat(dondeGuardarDatos_dat,"os"),"wb");
-				
-				fseek(archivo,0,SEEK_END);
-				cantRegistros = ftell(archivo)/sizeof(ventaR);
-				fseek(archivo,0,SEEK_SET);
-				
-				//fread(&vectVenta,sizeof(vectVenta),cantRegistros,archivo);
-				
 				cout<<"Ingrese el numero de id el cual desea eliminar: ";
 				cin>>numEliminar;
-				
-				//opcion 1
-				/*
 				while(fread(&ventaR,sizeof(ventaR),1,archivo)){
 					if(ventaR.id != numEliminar){
 						push(pila,ventaR);
 					}	
-				}
-				fclose(archivo);
-				
-				auxFile = fopen(dondeGuardarDatos_dat,"rb+");
+				}				
+				fseek(archivo,0,SEEK_SET);
 				while(pila != NULL){
 					ventaR = pila->info;
-					fwrite(&ventaR,sizeof(ventaR),1,auxFile);
+					fwrite(&ventaR,sizeof(ventaR),1,archivo);
 					pila = pila->sgte;
 				}
-				fclose(auxFile);
-				*/
-				
-				
-				while(fread(&ventaR,sizeof(ventaR),1,archivo)){
-					if(ventaR.id != numEliminar){
-						fwrite(&ventaR,sizeof(ventaR),1,auxFile);		
-					}	
-				}
-				
-				
-							
+				fseek(archivo,sizeof(ventaR)*(-1),SEEK_END);
+				fwrite(&ventaNull,sizeof(ventaNull),1,archivo);
+				fclose(archivo);				
 				break;
 			//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 			//Permite buscar por id un registro del archivo
 			case 3:
 				cantRegistros = 0;
-				posicion = 0;
-				
 				cout<<"Ingrese numero de id que busca: ";
 				cin>> numBuscar;
 				archivo = fopen(dondeGuardarDatos_dat,"rb");
@@ -222,24 +176,19 @@ int main()
 					break;
 					}
 				}
-				cout<<"Se encuentra en la pocicion "<< posicion <<endl;
+				
 				fclose(archivo);
 				break;
 			//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 			//Muestra el minimo, el mayor, la suma de todas las ventas y el promedio del dia
 			case 4:
-				
-				
 				archivo = fopen(dondeGuardarDatos_dat,"rb");
-				
 				fseek(archivo,0,SEEK_END);
 				cantRegistros = ftell(archivo)/sizeof(ventaR);
-				
 				fseek(archivo,0,SEEK_SET);
 				fread(&ventaR,sizeof(ventaR),1,archivo);
 				menor = ventaR.monto;
 				mayor = ventaR.monto;
-				
 				fseek(archivo,0,SEEK_SET);
 				while(fread(&ventaR,sizeof(ventaR),1,archivo)){
 					if(ventaR.monto > mayor){
@@ -250,16 +199,14 @@ int main()
 					}
 					suma = suma + (ventaR.monto * ventaR.cantVendida);
 				}
-				promedio = suma / cantRegistros;
-				
+				promedio = suma / cantRegistros;	
 				cout<<"El mayor monto del dia es: "<<mayor<<endl;
 				cout<<"El menor monto del dia es: "<<menor<<endl;
 				cout<<"La suma de lo vendido en el dia es: "<<suma<<endl;
 				cout<<"El promedio es: "<<promedio<<endl;
-				
 				break;
 			//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
-			//falta ver algunas cosas
+			//Muestra el minimo, el mayor, la suma de todas las ventas y el promedio de todo el mes
 			case 5:
 				diasMes = 1;
 				for(int i=1;i<32;i++){
@@ -268,12 +215,10 @@ int main()
 					if(archivo != NULL){
 						fseek(archivo,0,SEEK_END);
 						cantRegistros = ftell(archivo)/sizeof(ventaR);
-				
 						fseek(archivo,0,SEEK_SET);
 						fread(&ventaR,sizeof(ventaR),1,archivo);
 						menor = ventaR.monto;
 						mayor = ventaR.monto;
-				
 						fseek(archivo,0,SEEK_SET);
 						while(fread(&ventaR,sizeof(ventaR),1,archivo)){
 							if(ventaR.monto > mayor){
@@ -295,18 +240,15 @@ int main()
 				cout<<"El menor monto del dia es: "<<menor<<endl;
 				cout<<"La suma de lo vendido en el dia es: "<<suma<<endl;
 				cout<<"El promedio es: "<<promedio<<endl;
-				
 				break;
 			//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 			//Permite ingresar una nueva fecha
 			case 6:
 				cout<<"Introdusca una fecha en formato AAAAMMDD: ";
 				cin>>fecha;
-	
 				mes1 = (fecha / 1000) - (fecha/10000)*10;
 				mes2 = (fecha / 100) - (fecha/1000)*10;
 				dia1 = (fecha / 10) - (fecha/100)*10;
-	
 				while(mes1>1 || mes2 > 2 || dia1>3 ){
 			
 					cout<<"ERROR, se ingreso mal el mes\nIngrese nuevamente: ";
@@ -315,16 +257,15 @@ int main()
 					mes2 = (fecha / 100) - (fecha/1000)*10;
 					dia1 = (fecha / 10) - (fecha/100)*10;
 				}
-	
 				system("cls");
 				break;
 			//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
+			//Permite mostrar las ventas de un dia por medio de un txt
 			case 7:
 				freopen(dondeGuardarDatos_txt,"w",stdout);
 				mostrarEnTxt(archivo,dondeGuardarDatos_dat);
 				fclose(stdout);
 				break;
-			
 			defaul:
 				break;
 		}
@@ -341,8 +282,7 @@ int main()
 		cout<<"Ingrese su opcion: ";
 		cin>>opcion;
 		system("cls");
-	}
-	
+	}	
 }
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 //Funcion que crea las carpetas de los 12 meses
