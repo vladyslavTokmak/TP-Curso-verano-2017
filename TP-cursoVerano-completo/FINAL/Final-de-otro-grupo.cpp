@@ -30,6 +30,10 @@ struct venta{
 	float monto;
 	int cantVendida;
 };
+struct nodo{
+	venta info;
+	nodo * sgte;
+};
 venta ventaR;
 venta vectVenta[100];
 
@@ -37,11 +41,13 @@ void crearCarpetas();
 void obtenerDatos(venta &);
 void dondeGuardar(int,int,char *,char *);
 void mostrarEnTxt(FILE *,char *);
+void push(nodo* &,venta);
+venta pop(nodo* &);
 
 int main()
 {
 	//auxiliares para dia y mes
-	int mesAux,mes1,mes2,dia1,diaAux;
+	int mesAux,mes1,mes2,dia1,diaAux,diasMes;
 	//--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 	//ingreso de fecha y opcion para switch
 	int opcion,fecha;
@@ -76,9 +82,11 @@ int main()
 	int contador = 0;
 	int numEliminar;
 	int posicionAux;
+	nodo * pila;
+	nodo * pilaAux;
 	//--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 	//Variables para minimo maximo promedio y suam del dia 
-	float suma,promedio,mayor,menor;
+	float suma=0,promedio=0,mayor,menor;
 	//--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 	//Calculo los valores del dia y mes, y compruebo si fueron bien ingresados.
 	mes1 = (fecha / 1000) - (fecha/10000)*10;
@@ -151,42 +159,47 @@ int main()
 			//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 			//no anda del todo
 			case 2:
-				
+				pila = NULL;
+				pilaAux = pila;
 				posicionAux = 0;
 				archivo = fopen(dondeGuardarDatos_dat,"rb+");
+				auxFile = fopen(strcat(dondeGuardarDatos_dat,"os"),"wb");
 				
 				fseek(archivo,0,SEEK_END);
 				cantRegistros = ftell(archivo)/sizeof(ventaR);
-				
 				fseek(archivo,0,SEEK_SET);
-				fread(&vectVenta,sizeof(vectVenta),cantRegistros,archivo);
+				
+				//fread(&vectVenta,sizeof(vectVenta),cantRegistros,archivo);
 				
 				cout<<"Ingrese el numero de id el cual desea eliminar: ";
 				cin>>numEliminar;
 				
-				for(int i=0;i<cantRegistros;i++){
-					if(vectVenta[i].id == numEliminar){
-						vectVenta[i] = vectVenta[i+1];
-						posicionAux = i+1;
-					}
+				//opcion 1
+				/*
+				while(fread(&ventaR,sizeof(ventaR),1,archivo)){
+					if(ventaR.id != numEliminar){
+						push(pila,ventaR);
+					}	
 				}
-				for(int j=posicionAux;j<cantRegistros-1;j++){
-					vectVenta[j] = vectVenta[j+1];
-				}
-				
-				/*for(int h=0;h<cantRegistros;h++){
-					cout<<vectVenta[h].id<<endl;
-					cout<<vectVenta[h].cantVendida<<endl;
-					cout<<vectVenta[h].categoria<<endl;
-					cout<<vectVenta[h].monto<<endl;
-					cout<<vectVenta[h].producto<<endl;
-					cout<<"-----------------------------"<<endl;
-				}*/
-				
-				fseek(archivo,0,SEEK_SET);
-				fwrite(&vectVenta,sizeof(vectVenta),cantRegistros,archivo);
-				
 				fclose(archivo);
+				
+				auxFile = fopen(dondeGuardarDatos_dat,"rb+");
+				while(pila != NULL){
+					ventaR = pila->info;
+					fwrite(&ventaR,sizeof(ventaR),1,auxFile);
+					pila = pila->sgte;
+				}
+				fclose(auxFile);
+				*/
+				
+				
+				while(fread(&ventaR,sizeof(ventaR),1,archivo)){
+					if(ventaR.id != numEliminar){
+						fwrite(&ventaR,sizeof(ventaR),1,auxFile);		
+					}	
+				}
+				
+				
 							
 				break;
 			//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
@@ -213,29 +226,29 @@ int main()
 				fclose(archivo);
 				break;
 			//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
-			//No anda del todo
+			//Muestra el minimo, el mayor, la suma de todas las ventas y el promedio del dia
 			case 4:
 				
 				
-				archivo = fopen(dondeGuardarDatos_dat,"rb+");
+				archivo = fopen(dondeGuardarDatos_dat,"rb");
 				
 				fseek(archivo,0,SEEK_END);
 				cantRegistros = ftell(archivo)/sizeof(ventaR);
 				
 				fseek(archivo,0,SEEK_SET);
-				fread(&vectVenta,sizeof(vectVenta),cantRegistros,archivo);
+				fread(&ventaR,sizeof(ventaR),1,archivo);
+				menor = ventaR.monto;
+				mayor = ventaR.monto;
 				
-				menor = vectVenta[0].monto;
-				mayor = vectVenta[0].monto;
-				
-				for(int i=0;i<cantRegistros;i++){
-					if(vectVenta[i].monto > mayor){
-						mayor = vectVenta[i].monto;
+				fseek(archivo,0,SEEK_SET);
+				while(fread(&ventaR,sizeof(ventaR),1,archivo)){
+					if(ventaR.monto > mayor){
+						mayor = ventaR.monto;
 					}
-					if(vectVenta[i].monto < menor){
-						menor = vectVenta[i].monto;
+					if(ventaR.monto < menor){
+						menor = ventaR.monto;
 					}
-					suma += vectVenta[i].monto * vectVenta[i].cantVendida;
+					suma = suma + (ventaR.monto * ventaR.cantVendida);
 				}
 				promedio = suma / cantRegistros;
 				
@@ -246,7 +259,43 @@ int main()
 				
 				break;
 			//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
+			//falta ver algunas cosas
 			case 5:
+				diasMes = 1;
+				for(int i=1;i<32;i++){
+					dondeGuardar(mesAux,i,dondeGuardarDatos_dat,dondeGuardarDatos_txt);
+					archivo = fopen(dondeGuardarDatos_dat,"rb");
+					if(archivo != NULL){
+						fseek(archivo,0,SEEK_END);
+						cantRegistros = ftell(archivo)/sizeof(ventaR);
+				
+						fseek(archivo,0,SEEK_SET);
+						fread(&ventaR,sizeof(ventaR),1,archivo);
+						menor = ventaR.monto;
+						mayor = ventaR.monto;
+				
+						fseek(archivo,0,SEEK_SET);
+						while(fread(&ventaR,sizeof(ventaR),1,archivo)){
+							if(ventaR.monto > mayor){
+								mayor = ventaR.monto;
+							}
+							if(ventaR.monto < menor){
+								menor = ventaR.monto;
+							}
+							suma = suma + (ventaR.monto * ventaR.cantVendida);
+						}
+						promedio = suma / cantRegistros;
+					}
+					else{
+						cout<<"El archivo "<<i<<".dat no existe"<<endl;
+					}
+					fclose(archivo);
+				}
+				cout<<"El mayor monto del dia es: "<<mayor<<endl;
+				cout<<"El menor monto del dia es: "<<menor<<endl;
+				cout<<"La suma de lo vendido en el dia es: "<<suma<<endl;
+				cout<<"El promedio es: "<<promedio<<endl;
+				
 				break;
 			//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 			//Permite ingresar una nueva fecha
@@ -414,6 +463,23 @@ void mostrarEnTxt(FILE * archivoDeDia,char * dondeGuardar){
 		cout<< setw(10) << ventaR.id << " | " << setw(30) << ventaR.producto << " | " << setw(30) << ventaR.categoria << " | " << setw(10) << ventaR.monto << " | " << setw(25) << ventaR.cantVendida << endl;
 		cout<<"--------------------------------------------------------------------------------------------------------------"<<endl;
 	}
+}
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
+//Funcion push
+void push(nodo* &p,venta vR){
+	nodo * nuevo = new nodo();
+	nuevo->info = vR;
+	nuevo->sgte = p;
+	p = nuevo;
+}
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
+//Funcion pop
+venta pop(nodo* &p){
+	nodo* aux = p;
+	venta vR = aux->info;
+	p = aux->sgte;
+	delete aux;
+	return vR;
 }
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 //																																																								//
