@@ -1,3 +1,18 @@
+/*
+Un vendedor desea generar un programa capaz de almacenar las ventas del dia en archivos cuyo nombre lleva el dia correspondiente dentro de la carpeta del mes correspondiente.
+El programa solo puede almacenar 100 ventas por dia.
+Hacer una interfaz tip menu con las siguientes opciones:
+1-crear venta
+2-eliminar venta
+3-buscar venta
+4-MAXIMO MINIMO PROMEDIO Y TOTAL DE VENTAS DEL DIA
+5-MAXIMO MINIMO PROMEDIO Y TOTAL DE VENTAS DEL MES
+6-cambiar fecha.
+7-Generar archivo de venta del dia tipo txt
+0-Finalizar programa
+nota: se ingresa una fecha antes de empezar tipo AAAAMMDD, todo se hace sobre esa fehca hasta cambiarla
+La venta contiene: id,categoria, producto, monto, cantidad vendida.
+*/
 #include <iostream>
 #include <dir.h>
 #include<stdlib.h>
